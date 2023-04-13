@@ -35,6 +35,7 @@ html1 = """<!DOCTYPE html>
     <title>wattMetr web by Mutusoft.com</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     </head>
     <body>
     <div class="container text-center">
@@ -55,39 +56,48 @@ html1 = """<!DOCTYPE html>
 html2 = """
                         <tbody>
                           <tr>
-                            <td style="text-align: left">Datum a Čas</td>
+                            <td style="text-align: left">Datum a Čas:</td>
                             <td style="text-align: right"><strong>{TimeStamp}</strong></td>
                           </tr>
                           <tr>
-                            <td style="text-align: left">Aktuální Napětí [V]</td>
-                            <td style="text-align: right"><strong>{Voltage:10.0f}</strong></td>
-                          </tr>
-                          <tr>
-                            <td style="text-align: left">Aktuální Proud [A]</td>
-                            <td style="text-align: right"><strong>{Current:10.1f}</strong></td>
-                          </tr>
-                          <tr>
-                            <td style="text-align: left">Aktuální Výkon [W]</td>
-                            <td style="text-align: right"><strong>{Power:10.0f}</strong></td>
-                          </tr>
-                          <tr>
-                            <td style="text-align: left">Energie za den [kWh]</td>
-                            <td style="text-align: right"><strong>{EnergyDay:10.3f}</strong></td>
-                          </tr>
-                          <tr>
-                            <td style="text-align: left">Energie celkem [kWh]</td>
-                            <td style="text-align: right"><strong>{Energy:10.0f}</strong></td>
-                          </tr>
-                          <tr>
-                            <td style="text-align: left">Teplota [Celsius]</td>
-                            <td style="text-align: right"><strong>{Teplota:10.1f}</strong></td>
-                          </tr>
-                          <tr>
-                            <td style="text-align: left">Uptime</td>
+                            <td style="text-align: left">Uptime:</td>
                             <td style="text-align: right"><strong>{Uptime}</strong></td>
-                          </tr>              
-                          </tbody> """
+                          </tr>  
+                          <tr>
+                            <td style="text-align: left">Energie za den:</td>
+                            <td style="text-align: right"><strong>{EnergyDay:10.3f} kWh</strong></td>
+                          </tr>
+                          <tr>
+                            <td style="text-align: left">Energie celkem:</td>
+                            <td style="text-align: right"><strong>{Energy:10.0f} kWh</strong></td>
+                          </tr>
+                          </tbody>
+"""                          
+                          
 html3 = """
+                </table>
+            </div>
+            <div class="col-sm-3"></div>
+        </div>
+        
+        <div class="row">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-6">
+                    <table class="table">
+                        <tbody>
+                          <tr>
+                          <td></td>
+                            <td><div id="Ampermetr" style="width: 150px; height: 150px; margin: Auto;"></div></td>
+                            <td><div id="Voltmetr" style="width: 150px; height: 150px; margin: Auto;"></div></td>
+                            <td></td>
+                          </tr>
+                          <tr>
+                          <td></td>
+                            <td><div id="Wattmetr" style="width: 150px; height: 150px; margin: Auto;"></div></td>
+                            <td><div id="Tempmetr" style="width: 150px; height: 150px; margin: Auto;"></div></td>
+                            <td></td>
+                           </tr>
+                        </tbody> 
                 </table>
             </div>
             <div class="col-sm-3"></div>
@@ -136,10 +146,11 @@ html3 = """
             <div class="col-sm-3"></div>
         </div>
     </div>
+    
+    <script>
 """
 
 html4 = """
-<script>
 const xTempValues = [{xTempValues}];
 const yTempValues = [{yTempValues}];
 const xPwrValues = [{xPwrValues}];
@@ -152,6 +163,10 @@ const xEnRokValues = [{xEnRokValues}];
 const yEnRokValues = [{yEnRokValues}];
 const xEn10RValues = [{xEn10RValues}];
 const yEn10RValues = [{yEn10RValues}];
+const AMPS = {Current:10.1f};
+const VOLTS = {Voltage:10.0f}; 
+const WATTS = {Power:10.0f};
+const CELSIUS = {Teplota:10.1f};
 """
 
 html5 = """ 
@@ -226,7 +241,7 @@ html5 = """
         labels: xEnDenValues,
         datasets: [{
           label: 'Výroba za 1 den [kWh]',
-          backgroundColor: "LimeGreen",
+          backgroundColor: "LawnGreen",
            data: yEnDenValues
         }]
       },
@@ -256,7 +271,7 @@ html5 = """
         labels: xEnRokValues,
         datasets: [{
           label: 'Výroba za 1 Rok [MWh]',
-          backgroundColor: "LimeGreen",
+          backgroundColor: "Green",
           data: yEnRokValues
         }]
       },
@@ -271,7 +286,7 @@ html5 = """
         labels: xEn10RValues,
         datasets: [{
           label: 'Výroba za 10 let [MWh]',
-          backgroundColor: "LimeGreen",
+          backgroundColor: "DarkGreen",
           data: yEn10RValues
         }]
       },
@@ -280,9 +295,102 @@ html5 = """
       }
     });
 
-    setTimeout(function () {
-        window.location.reload();
-    }, 60000);
+      google.charts.load('current', {'packages':['gauge']});
+      google.charts.setOnLoadCallback(drawAmpMetr);
+      google.charts.setOnLoadCallback(drawVoltMetr);
+      google.charts.setOnLoadCallback(drawWattMetr);
+      google.charts.setOnLoadCallback(drawTempMetr);
+      
+      function drawAmpMetr() {
+
+        var data = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ['A', AMPS],
+        ]);
+
+        var options = {
+          width: 150, height: 150,
+          greenFrom: 5, greenTo: 15,
+          redFrom: 18, redTo: 20,
+          yellowFrom:15, yellowTo: 18,
+          minorTicks: 5,
+          min: 0,
+          max: 20
+        };
+
+        var AmpMetr = new google.visualization.Gauge(document.getElementById('Ampermetr'));
+
+        AmpMetr.draw(data, options);
+      }    
+      
+      function drawVoltMetr() {
+
+        var data = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ['V', VOLTS],
+        ]);
+
+        var options = {
+          width: 150, height: 150,
+          greenFrom: 190, greenTo: 250,
+          yellowFrom:250, yellowTo: 300,
+          redFrom: 300, redTo: 330,
+          minorTicks: 5,
+          min: 0,
+          max: 330
+        };
+
+        var VoltMetr = new google.visualization.Gauge(document.getElementById('Voltmetr'));
+
+        VoltMetr.draw(data, options);
+      }
+      
+      
+       function drawWattMetr() {
+
+        var Wattmetr_data = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ['W', WATTS],
+        ]);
+
+        var options = {
+          width: 150, height: 150,
+          greenFrom: 1500, greenTo: 2400,
+          redFrom: 2800, redTo: 3000,
+          yellowFrom: 2400, yellowTo: 2800,
+          minorTicks: 5,
+          min: 0,
+          max: 3000
+        };
+
+        var Wattmetr = new google.visualization.Gauge(document.getElementById('Wattmetr'));
+
+        Wattmetr.draw(Wattmetr_data, options);
+      }
+      
+      
+       function drawTempMetr() {
+
+        var Tempmetr_data = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ['°C', CELSIUS],
+        ]);
+
+        var options = {
+          width: 150, height: 150,
+          greenFrom: 35, greenTo: 65,
+          yellowFrom: 65, yellowTo: 85,
+          redFrom: 85, redTo: 90,
+          minorTicks: 5,
+          min: 0,
+          max: 90
+        };
+
+        var Tempmetr = new google.visualization.Gauge(document.getElementById('Tempmetr'));
+
+        Tempmetr.draw(Tempmetr_data, options);
+      }
+
     
 </script>
 
@@ -422,10 +530,9 @@ def create_web():
     uptime = ( "%dd, %dh, %dmin, %ds" % (day, hour, minutes, seconds))
     #html0 = 'HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n'
     #html1
-    aux1 = html2.format(TimeStamp = json_decoded['TimeStamp'], Voltage = json_decoded['Voltage[V]'], Current = json_decoded['Current[A]'], Power = json_decoded['Power[W]'], EnergyDay = json_decoded['EnergyDayAcc[kWh]'], Energy = json_decoded['EnergyAllAcc[kWh]'], Teplota = json_decoded['Temperature[C]'], Uptime = uptime)
+    aux1 = html2.format(TimeStamp = json_decoded['TimeStamp'], EnergyDay = json_decoded['EnergyDayAcc[kWh]'], Energy = json_decoded['EnergyAllAcc[kWh]'], Uptime = uptime)
     #html3
-    aux2 = html4.format(xTempValues = xtemp_data, yTempValues = ytemp_data, xPwrValues = xpwr_data, yPwrValues = ypwr_data, xEnDenValues = xenden_data, yEnDenValues = yenden_data, xEnMesValues = xenmes_data, yEnMesValues = yenmes_data, xEnRokValues = xenrok_data, yEnRokValues = yenrok_data, xEn10RValues = xen10r_data, yEn10RValues = yen10r_data )
-    #html5
+    aux2 = html4.format(xTempValues = xtemp_data, yTempValues = ytemp_data, xPwrValues = xpwr_data, yPwrValues = ypwr_data, xEnDenValues = xenden_data, yEnDenValues = yenden_data, xEnMesValues = xenmes_data, yEnMesValues = yenmes_data, xEnRokValues = xenrok_data, yEnRokValues = yenrok_data, xEn10RValues = xen10r_data, yEn10RValues = yen10r_data, Voltage = json_decoded['Voltage[V]'], Current = json_decoded['Current[A]'], Power = json_decoded['Power[W]'], Teplota = json_decoded['Temperature[C]'] )
     
     #return [ html0, html1, html2, html3, html4, html5 ]
     return [ html1, aux1, html3, aux2, html5 ]
@@ -502,4 +609,3 @@ try:
     asyncio.run(main())
 finally:
     print ("Program ukončen ...")
-    #machine.reset()
