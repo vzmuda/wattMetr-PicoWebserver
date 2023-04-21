@@ -12,6 +12,7 @@ import urequests
 from machine import WDT
 from machine import Pin, UART
 import uasyncio as asyncio
+import umqtt.simple
 
 
 
@@ -22,6 +23,18 @@ ip = '<internal_net_fix_IP>'
 mask = '<IP mask>'
 gw = '<Default Gateway>'
 dns = '<DNS server>'
+#mqtt
+# vzor obdržených dat pomocí mqtt: {'Voltage[V]': 0.0, 'Uptime[s]': 5789, 'Power12h[kW]': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'EnergyDay[kWh]': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'EnergyHrAcc[Wh]': 0.0, 'Temp12h[C]': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'Temperature[C]': 0.0, 'Energy10Y[MWh]': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'Energy10YAcc[kWh]': 0.0, 'EnergyMonthAcc[kWh]': 0.0, 'EnergyMonth[kWh]': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 'TimeStamp': '2025/05/05 11:36', 'EnergyYearAcc[kWh]': 0.0, 'EnergyDayAcc[kWh]': 0.0, 'Power[W]': 0.0, 'Current[A]': 0.0, 'EnergyAllAcc[kWh]': 0.0, 'EnergyYear[MWh]': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}
+server = 'ip_adresa_mqtt_serveru'
+port = 1883
+mqtt_user = 'mqtt_uzivatelske_jmeno'
+mqtt_password = 'mqtt_heslo'
+client_id = 'wattmetr'
+topic = b'moje/topic'
+
+
+
+
 # Change these parameters before running the scipt
 
 
@@ -201,7 +214,6 @@ html5 = """
         }
       }
     });
-
     new Chart("pwrChart", {
       type: "line",
       data: {
@@ -234,7 +246,6 @@ html5 = """
         }
       }
     });
-
     new Chart("enDeChart", {
       type: "bar",
       data: {
@@ -249,7 +260,6 @@ html5 = """
         legend: {display: false}
       }
     });
-
     new Chart("enMeChart", {
       type: "bar",
       data: {
@@ -264,7 +274,6 @@ html5 = """
         legend: {display: false},
       }
     });
-
     new Chart("enRoChart", {
       type: "bar",
       data: {
@@ -279,7 +288,6 @@ html5 = """
         legend: {display: false},
       }
     });
-
     new Chart("en10RChart", {
       type: "bar",
       data: {
@@ -294,7 +302,6 @@ html5 = """
         legend: {display: false},
       }
     });
-
       google.charts.load('current', {'packages':['gauge']});
       google.charts.setOnLoadCallback(drawAmpMetr);
       google.charts.setOnLoadCallback(drawVoltMetr);
@@ -302,12 +309,10 @@ html5 = """
       google.charts.setOnLoadCallback(drawTempMetr);
       
       function drawAmpMetr() {
-
         var data = google.visualization.arrayToDataTable([
           ['Label', 'Value'],
           ['A', AMPS],
         ]);
-
         var options = {
           width: 150, height: 150,
           greenFrom: 5, greenTo: 15,
@@ -317,19 +322,15 @@ html5 = """
           min: 0,
           max: 20
         };
-
         var AmpMetr = new google.visualization.Gauge(document.getElementById('Ampermetr'));
-
         AmpMetr.draw(data, options);
       }    
       
       function drawVoltMetr() {
-
         var data = google.visualization.arrayToDataTable([
           ['Label', 'Value'],
           ['V', VOLTS],
         ]);
-
         var options = {
           width: 150, height: 150,
           greenFrom: 190, greenTo: 250,
@@ -339,20 +340,16 @@ html5 = """
           min: 0,
           max: 330
         };
-
         var VoltMetr = new google.visualization.Gauge(document.getElementById('Voltmetr'));
-
         VoltMetr.draw(data, options);
       }
       
       
        function drawWattMetr() {
-
         var Wattmetr_data = google.visualization.arrayToDataTable([
           ['Label', 'Value'],
           ['W', WATTS],
         ]);
-
         var options = {
           width: 150, height: 150,
           greenFrom: 1500, greenTo: 2400,
@@ -362,20 +359,16 @@ html5 = """
           min: 0,
           max: 3000
         };
-
         var Wattmetr = new google.visualization.Gauge(document.getElementById('Wattmetr'));
-
         Wattmetr.draw(Wattmetr_data, options);
       }
       
       
        function drawTempMetr() {
-
         var Tempmetr_data = google.visualization.arrayToDataTable([
           ['Label', 'Value'],
           ['°C', CELSIUS],
         ]);
-
         var options = {
           width: 150, height: 150,
           greenFrom: 35, greenTo: 65,
@@ -385,20 +378,13 @@ html5 = """
           min: 0,
           max: 90
         };
-
         var Tempmetr = new google.visualization.Gauge(document.getElementById('Tempmetr'));
-
         Tempmetr.draw(Tempmetr_data, options);
       }
-
     
 </script>
-
 </body>
-
 </html>
-
-
 <script>
 </script>
 <script>
@@ -409,13 +395,10 @@ html5 = """
 </script>
 <script>
 </script>
-
 <script>
 </script>
-
 <script>
 </script>
-
 """
 
 wdt = WDT(timeout=8000)
@@ -453,6 +436,20 @@ def connect_to_network():
         wlan.ifconfig((ip, mask, gw, dns))
         status = wlan.ifconfig()
         print('ip = ' + status[0])
+        
+def odeslat_zpravu(server):
+    global json_decoded
+    # Vytvoření instance klienta MQTT
+    client = umqtt.simple.MQTTClient(client_id, server, user=mqtt_user, password=mqtt_password, keepalive=30)
+    try:
+        # Připojení k MQTT brokeru
+        client.connect()
+        client.publish(topic, str(json_decoded))
+        client.disconnect()
+        print("Data odeslána pomocí MQTT")
+    except Exception as e:
+        print("Nepodařilo se připojit k MQTT brokeru,chyba s kodem ", e)
+    return
 
 def create_web():
     global rxDataStr, json_decoded
@@ -571,6 +568,7 @@ def uart0_rxh():
         
     if (err_in_json == 0):
         json_decoded = decoded_tmp
+        odeslat_zpravu(server)
     else:
         json_decoded = json.loads('{}')
     
@@ -601,7 +599,7 @@ async def main():
         else:
             onboard.off()
             connect_to_network()
-        wdt.feed()        
+        wdt.feed()
         await asyncio.sleep(1)
 
 
@@ -609,3 +607,4 @@ try:
     asyncio.run(main())
 finally:
     print ("Program ukončen ...")
+
